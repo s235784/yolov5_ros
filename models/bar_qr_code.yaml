@@ -1,0 +1,13 @@
+train: G:\Yolo\datasets\bar_qr_code\train
+val: G:\Yolo\datasets\bar_qr_code\valid
+test: G:\Yolo\datasets\bar_qr_code\test
+
+nc: 2
+names: ['barcode', 'qrcode']
+
+roboflow:
+  workspace: project
+  project: qrcodereader
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/project/qrcodereader/dataset/1
