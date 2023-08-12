@@ -1,44 +1,72 @@
 # YOLOv5 ROS
-This is a ROS interface for using YOLOv5 for real time object detection on a ROS image topic. It supports inference on multiple deep learning frameworks used in the [official YOLOv5 repository](https://github.com/ultralytics/yolov5).
+本仓库fork自[yolov5_ros](https://github.com/mats-robotics/yolov5_ros)，添加了对V4L2摄像头和Intel Realsense D435设备的支持。
 
-## Installation
+## 安装
 
-### Dependencies
-This package is built and tested on Ubuntu 20.04 LTS and ROS Noetic with Python 3.8.
+### 依赖
+本仓库编译和测试的环境如下：
 
-* Clone the packages to ROS workspace and install requirement for YOLOv5 submodule:
+- Jetson Orin NX 8GB
+- Ubuntu 20.04 LTS
+- ROS Noetic
+- Python 3.8
+
+其他设备可能在V4L2调用上存在问题，请自行修改[这行代码](https://github.com/s235784/yolov5_ros/blob/eda0637b6c039e7c36ec3de516ee98063f43e30b/src/detect_v4l2.py#L111)。
+
+1. Clone本仓库至本地的ROS工作空间中，并安装yolov5的依赖：
+
 ```bash
 cd <ros_workspace>/src
-git clone https://github.com/mats-robotics/detection_msgs.git
+git clone https://github.com/s235784/yolov5_ros.git
 git clone --recurse-submodules https://github.com/mats-robotics/yolov5_ros.git 
 cd yolov5_ros/src/yolov5
 pip install -r requirements.txt # install the requirements for yolov5
 ```
-* Build the ROS package:
+2. 编译ROS包：
+
 ```bash
 cd <ros_workspace>
 catkin build yolov5_ros # build the ROS package
 ```
-* Make the Python script executable 
+3. 授予Python script权限： 
+
 ```bash
 cd <ros_workspace>/src/yolov5_ros/src
 chmod +x detect.py
 ```
 
-## Basic usage
-Change the parameter for `input_image_topic` in launch/yolov5.launch to any ROS topic with message type of `sensor_msgs/Image` or `sensor_msgs/CompressedImage`. Other parameters can be modified or used as is.
+## 基本用法
+- 使用Topic
 
-* Launch the node:
+修改 launch/yolov5.launch中的 `input_image_topic` 至任何类型为 `sensor_msgs/Image` 或 `sensor_msgs/CompressedImage` 的话题。然后启动节点：
+
 ```bash
 roslaunch yolov5_ros yolov5.launch
 ```
 
-## Using custom weights and dataset (Working)
-* Put your weights into `yolov5_ros/src/yolov5`
-* Put the yaml file for your dataset classes into `yolov5_ros/src/yolov5/data`
-* Change related ROS parameters in yolov5.launch: `weights`,  `data`
+- 使用D435
 
-## Reference
-* YOLOv5 official repository: https://github.com/ultralytics/yolov5
-* YOLOv3 ROS PyTorch: https://github.com/eriklindernoren/PyTorch-YOLOv3
-* Darknet ROS: https://github.com/leggedrobotics/darknet_ros
+首先开启D435的ROS节点：
+
+```bash
+roslaunch realsense2_camera rs_camera.launch
+```
+
+然后开启Yolo节点：
+
+```bash
+roslaunch yolov5_ros yolov5_d435.launch
+```
+
+- 使用V4L2
+
+修改 launch/yolov5_camera.launch中的 `camera_src ` 至摄像头文件地址，如`/dev/video0`，然后启动节点：
+
+```bash
+roslaunch yolov5_ros yolov5_camera.launch
+```
+
+## 使用自定义权重和训练集
+
+* 将 *pt* 和 *yaml* 文件放在 `yolov5_ros/models` 文件夹中
+* 更改各个 launch 文件中的 `weights`,  `data`
